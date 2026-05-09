@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="scroll-behavior: auto;">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,7 +25,7 @@
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: auto; }
 
   body {
     background: var(--bg);
@@ -725,7 +725,7 @@
   }
 </style>
 </head>
-<body>
+<body onload="window.scrollTo(0,0)">
 
 <div id="cursor"></div>
 <div id="cursor-trail"></div>
@@ -797,7 +797,7 @@
       </p>
       <div class="about-stats">
         <div class="stat-card">
-          <span class="stat-num">20+</span>
+          <span class="stat-num">3+</span>
           <span class="stat-label">Projects</span>
         </div>
         <div class="stat-card">
@@ -1022,7 +1022,22 @@
 </footer>
 
 <script>
-  // Custom cursor
+  // === SCROLL TO TOP ON LOAD (before anything else) ===
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+  // Remove any hash from URL so browser doesn't jump to anchor
+  if (window.location.hash) {
+    history.replaceState(null, '', window.location.pathname);
+  }
+
+  // Triple ensure: immediate + after DOM + after full load
+  window.scrollTo(0, 0);
+  document.addEventListener('DOMContentLoaded', () => window.scrollTo(0, 0));
+  window.addEventListener('load', () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  });
+
+  // === CUSTOM CURSOR ===
   const cursor = document.getElementById('cursor');
   const trail = document.getElementById('cursor-trail');
   let mx = 0, my = 0, tx = 0, ty = 0;
@@ -1040,24 +1055,27 @@
   }
   animTrail();
 
-  document.querySelectorAll('a, button').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      cursor.style.transform += ' scale(1.8)';
-      trail.style.transform += ' scale(1.5)';
-    });
-    el.addEventListener('mouseleave', () => {});
-  });
-
-  // Scroll reveal
+  // === SCROLL REVEAL ===
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => {
-      if (e.isIntersecting) { e.target.classList.add('visible'); }
+      if (e.isIntersecting) e.target.classList.add('visible');
     });
   }, { threshold: 0.1 });
   reveals.forEach(el => observer.observe(el));
 
-  // Nav active state
+  // === NAV SMOOTH SCROLL (intercept all # links) ===
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const id = this.getAttribute('href');
+      if (id === '#') { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+      const target = document.querySelector(id);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // === NAV ACTIVE HIGHLIGHT ===
   const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('.nav-links a');
   const navObs = new IntersectionObserver(entries => {
@@ -1068,7 +1086,7 @@
         if (active) active.style.color = 'var(--accent2)';
       }
     });
-  }, { threshold: 0.5 });
+  }, { threshold: 0.3 });
   sections.forEach(s => navObs.observe(s));
 </script>
 </body>
