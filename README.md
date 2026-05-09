@@ -11,7 +11,7 @@ This portfolio showcases my skills, projects, education, certifications, and con
 
 Example:
 
-- Portfolio Live: `https://your-portfolio-link.com`
+- Portfolio Live: `https://dipakpatel972649-cloud.github.io/dipak-dev-portfolio/#contact`
 
 ---
 
